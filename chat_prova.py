@@ -31,12 +31,10 @@ if __name__ == '__main__':
 
     if utente_corrente:
         while True:
-            print("\n*** Benvenuto nella chat ***")
-            print("1. Ricerca utenti")
-            print("2. Aggiungi contatto")
-            print("3. Imposta modalità Do Not Disturb")
-            print("4. Invia messaggio")
-            print("5. Leggi chat")
+            print(f"\n*** Benvenuto nella chat, {utente_corrente}!***")
+            print("1. Ricerca e aggiungi contatti")
+            print("2. Imposta modalità Do Not Disturb")
+            print("3. Chatta")
             print("0. Esci")
 
             scelta = input("Scelta: ")
@@ -44,13 +42,9 @@ if __name__ == '__main__':
             if scelta == "1":
                 func.ricerca_utenti()
             elif scelta == "2":
-                func.aggiungi_contatto(utente_corrente)
-            elif scelta == "3":
                 func.impostazione_dnd(utente_corrente)
-            elif scelta == "4":
+            elif scelta == "3":
                 func.invia_mess(utente_corrente)
-            elif scelta == "5":
-                func.leggi_mess(utente_corrente)
             elif scelta == "0":
                 print("Grazie per aver utilizzato la chat. Arrivederci!")
                 break
