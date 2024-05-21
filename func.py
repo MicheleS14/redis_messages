@@ -32,14 +32,71 @@ def login():
         print("Credenziali errate.")
         return None
 
+def aggiungi_utente(user):
+    # Controlla se l'utente esiste già nei contatti
+    if not r.sismember('contacts', user):
+        # Aggiungi l'utente ai contatti
+        r.sadd('contacts', user)
+        print(f"L'utente {user} è stato aggiunto ai contatti.")
+    else:
+        print(f"L'utente {user} è già nei tuoi contatti.")
+        
+        
 def ricerca_utenti():
-    print('da fare')
+    query = input("Inserisci il nome utente (anche parziale): ")
     
-def aggiungi_contatti():
-    print('da fare')
+    # Cerco gli utenti che corrispondono alla query
+    users = r.keys(query + "*")
     
-def impostazione_dnd():
-    print('da fare')
+    if not users:
+        print("Nessun utente trovato.")
+    else:
+        print("Utenti trovati:")
+        for i, user in enumerate(users, 1):
+            print(f'{i}. {user.encode()}')
+        
+        while True:
+            try:
+                selection = int(input("Seleziona un utente da aggiungere(o premi 0 per uscire): "))
+                if selection == 0:
+                    return
+                elif 1 <= selection <= len(users):
+                    selected_user = users[selection - 1].encode()
+                    break
+                else:
+                    print("Selezione non valida. Riprova.")
+            except ValueError:
+                print("Inserisci un numero valido.")
+        
+        aggiungi_utente(selected_user)
+        print(f"L'utente {selected_user} è stato aggiunto ai tuoi contatti.")
+
+def impostazione_dnd(username):
+    # Verifica lo stato attuale della modalità DND
+    stato_dnd = r.hget(username, "dnd")
+    
+    # Se la modalità DND è già attiva, chiedi all'utente se vuole disattivarla
+    if stato_dnd == 'True':
+        risp = input("Modalità dnd attualmente attiva, vuoi disattivarla? (Y/N): ")
+        if risp.lower() == 'y':
+            dnd = 'False'
+            r.hset(username, "dnd", dnd)
+            print("***Modalità Do Not Disturb disattivata***")
+        else:
+            print("***Modalità Do Not Disturb rimane attiva***")
+    # Altrimenti, chiedi all'utente se vuole attivare la modalità DND
+    else:
+        risp = input("Vuoi attivare la modalità Do Not Disturb? (Y/N): \n(Se sceglierai di si non potrai ricevere messaggi da altri utenti)\n")
+        if risp.lower() == 'y':
+            dnd = 'True'
+            r.hset(username, "dnd", dnd)
+            print("***Modalità Do Not Disturb attivata***")
+        elif risp.lower() == 'n':
+            dnd = 'False'
+            r.hset(username, "dnd", dnd)
+            print("***Modalità Do Not Disturb disattivata***")
+    
+        
     
 def invia_mess():
     print('da fare')
