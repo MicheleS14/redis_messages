@@ -1,8 +1,6 @@
 import redis
 import datetime
 
-
-
 # Connessione a Redis
 r = redis.Redis(host='redis-16036.c250.eu-central-1-1.ec2.redns.redis-cloud.com', port=16036, db=0, username='default', password='69Fa488VqsGKuseTkFy5uwVlupgDBF2V', decode_responses=True)
 
@@ -32,16 +30,16 @@ def login():
         print("Credenziali errate.")
         return None
 
-def aggiungi_utente(user):
-    # Controlla se l'utente esiste già nei contatti
-    if not r.sismember('contacts', user):
-        # Aggiungi l'utente ai contatti
-        r.sadd('contacts', user)
+def aggiungi_utente(user, utente_corrente):
+    # Controlla se l'utente esiste già nei contatti dell'utente corrente
+    if not r.sismember(f"contacts:{utente_corrente}", user):
+        # Aggiungi l'utente ai contatti dell'utente corrente
+        r.sadd(f"contacts:{utente_corrente}", user)
+        print(f"L'utente {user} è stato aggiunto ai contatti.")
     else:
         print(f"L'utente {user} è già nei tuoi contatti.")
-        
-        
-def ricerca_utenti():
+
+def ricerca_utenti(utente_corrente):
     query = input("Inserisci il nome utente (anche parziale): ")
     
     # Cerco gli utenti che corrispondono alla query
@@ -52,23 +50,21 @@ def ricerca_utenti():
     else:
         print("Utenti trovati:")
         for i, user in enumerate(users, 1):
-            print(f'{i}. {user.encode()}')
+            print(f'{i}. {user}')
         
         while True:
             try:
-                selection = int(input("Seleziona un utente da aggiungere(o premi 0 per uscire): "))
+                selection = int(input("Seleziona un utente da aggiungere (o premi 0 per uscire): "))
                 if selection == 0:
                     return
                 elif 1 <= selection <= len(users):
-                    selected_user = users[selection - 1].encode()
+                    selected_user = users[selection - 1]
+                    aggiungi_utente(selected_user, utente_corrente)
                     break
                 else:
                     print("Selezione non valida. Riprova.")
             except ValueError:
                 print("Inserisci un numero valido.")
-        
-        aggiungi_utente(selected_user)
-        print(f"L'utente {selected_user} è stato aggiunto ai tuoi contatti.")
 
 def impostazione_dnd(username):
     # Verifica lo stato attuale della modalità DND
@@ -85,7 +81,7 @@ def impostazione_dnd(username):
             print("***Modalità Do Not Disturb rimane attiva***")
     # Altrimenti, chiedi all'utente se vuole attivare la modalità DND
     else:
-        risp = input("Vuoi attivare la modalità Do Not Disturb? (Y/N): \n(Se sceglierai di si non potrai ricevere messaggi da altri utenti)\n")
+        risp = input("Vuoi attivare la modalità Do Not Disturb? (Y/N): \n(Se sceglierai di sì non potrai ricevere messaggi da altri utenti)\n")
         if risp.lower() == 'y':
             dnd = 'True'
             r.hset(username, "dnd", dnd)
@@ -95,7 +91,37 @@ def impostazione_dnd(username):
             r.hset(username, "dnd", dnd)
             print("***Modalità Do Not Disturb disattivata***")
 
-  
+def get_contatti(utente_corrente):
+    # Ottieni i contatti dell'utente corrente
+    contatti = r.smembers(f"contacts:{utente_corrente}")
+    return list(contatti)
+
+def crea_chat(utente_corrente):
+    contatti = get_contatti(utente_corrente)
+    
+    if not contatti:
+        print("Non hai contatti. Aggiungi prima dei contatti per iniziare una chat.")
+        return
+
+    print("\n*** Seleziona un contatto per iniziare una chat ***")
+    for i, contatto in enumerate(contatti, 1):
+        print(f"{i}. {contatto}")
+    
+    while True:
+        try:
+            scelta = int(input("Seleziona un contatto (o premi 0 per uscire): "))
+            if scelta == 0:
+                return
+            elif 1 <= scelta <= len(contatti):
+                contatto_selezionato = contatti[scelta - 1]
+                print(f"Iniziando una chat con {contatto_selezionato}...")
+                # Puoi aggiungere qui il codice per gestire la chat
+                break
+            else:
+                print("Selezione non valida. Riprova.")
+        except ValueError:
+            print("Inserisci un numero valido.")
+
 def invia_mess():
     print('da fare')
 

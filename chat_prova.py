@@ -40,11 +40,11 @@ if __name__ == '__main__':
             scelta = input("Scelta: ")
 
             if scelta == "1":
-                func.ricerca_utenti()
+                func.ricerca_utenti(utente_corrente)
             elif scelta == "2":
                 func.impostazione_dnd(utente_corrente)
             elif scelta == "3":
-                func.invia_mess(utente_corrente)
+                func.crea_chat(utente_corrente)
             elif scelta == "0":
                 print("Grazie per aver utilizzato la chat. Arrivederci!")
                 break
