@@ -42,7 +42,7 @@ def aggiungi_utente(user):
         
         
 def ricerca_utenti():
-    query = input("Inserisci il nome utente (anche parziale): ").lower()
+    query = input("Inserisci il nome utente (anche parziale): ")
     
     # Cerco gli utenti che corrispondono alla query
     users = r.keys(query + "*")
