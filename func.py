@@ -37,13 +37,12 @@ def aggiungi_utente(user):
     if not r.sismember('contacts', user):
         # Aggiungi l'utente ai contatti
         r.sadd('contacts', user)
-        print(f"L'utente {user} è stato aggiunto ai contatti.")
     else:
         print(f"L'utente {user} è già nei tuoi contatti.")
         
         
 def ricerca_utenti():
-    query = input("Inserisci il nome utente (anche parziale): ")
+    query = input("Inserisci il nome utente (anche parziale): ").lower()
     
     # Cerco gli utenti che corrispondono alla query
     users = r.keys(query + "*")
@@ -95,9 +94,8 @@ def impostazione_dnd(username):
             dnd = 'False'
             r.hset(username, "dnd", dnd)
             print("***Modalità Do Not Disturb disattivata***")
-    
-        
-    
+
+  
 def invia_mess():
     print('da fare')
 
