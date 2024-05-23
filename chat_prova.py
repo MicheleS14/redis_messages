@@ -44,7 +44,7 @@ if __name__ == '__main__':
             elif scelta == "2":
                 func.impostazione_dnd(utente_corrente)
             elif scelta == "3":
-                func.crea_chat(utente_corrente)
+                func.seleziona_chat(utente_corrente)
             elif scelta == "0":
                 print("Grazie per aver utilizzato la chat. Arrivederci!")
                 break

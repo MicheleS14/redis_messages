@@ -96,9 +96,9 @@ def get_contatti(utente_corrente):
     contatti = r.smembers(f"contacts:{utente_corrente}")
     return list(contatti)
 
-def crea_chat(utente_corrente):
+#Selezione CHAT
+def seleziona_chat(utente_corrente):
     contatti = get_contatti(utente_corrente)
-    
     if not contatti:
         print("Non hai contatti. Aggiungi prima dei contatti per iniziare una chat.")
         return
@@ -116,14 +116,20 @@ def crea_chat(utente_corrente):
                 contatto_selezionato = contatti[scelta - 1]
                 print(f"Iniziando una chat con {contatto_selezionato}...")
                 # Puoi aggiungere qui il codice per gestire la chat
+
                 break
             else:
                 print("Selezione non valida. Riprova.")
         except ValueError:
             print("Inserisci un numero valido.")
 
-def invia_mess():
-    print('da fare')
+def chat():
+    while True:
+        messaggio = print(input("Scrivi: "))
+        return
+
+
+
 
 def leggi_mess():
     print('da fare')
