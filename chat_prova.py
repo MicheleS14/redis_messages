@@ -1,10 +1,4 @@
-import redis
-import datetime
 import func
-
-
-# Connessione a Redis
-r = redis.Redis(host='redis-16036.c250.eu-central-1-1.ec2.redns.redis-cloud.com', port=16036, db=0, username='default', password='69Fa488VqsGKuseTkFy5uwVlupgDBF2V', decode_responses=True)
 
 if __name__ == '__main__':
     utente_corrente = None
@@ -15,7 +9,7 @@ if __name__ == '__main__':
         print("2. Registrazione")
         print("0. Esci")
         
-        scelta = input('scelta: ')
+        scelta = input('Scelta: ')
         
         if scelta == "1":
             utente_corrente = func.login()
@@ -31,7 +25,7 @@ if __name__ == '__main__':
 
     if utente_corrente:
         while True:
-            print(f"\n*** Benvenuto nella chat, {utente_corrente}!***")
+            print(f"\n*** Benvenuto nella chat, {utente_corrente}! ***")
             print("1. Ricerca e aggiungi contatti")
             print("2. Imposta modalità Do Not Disturb")
             print("3. Chatta")

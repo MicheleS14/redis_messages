@@ -1,5 +1,6 @@
 import redis
 import datetime
+import json
 
 # Connessione a Redis
 r = redis.Redis(host='redis-16036.c250.eu-central-1-1.ec2.redns.redis-cloud.com', port=16036, db=0, username='default', password='69Fa488VqsGKuseTkFy5uwVlupgDBF2V', decode_responses=True)
@@ -96,7 +97,7 @@ def get_contatti(utente_corrente):
     contatti = r.smembers(f"contacts:{utente_corrente}")
     return list(contatti)
 
-#Selezione CHAT
+# Selezione CHAT
 def seleziona_chat(utente_corrente):
     contatti = get_contatti(utente_corrente)
     if not contatti:
@@ -115,21 +116,42 @@ def seleziona_chat(utente_corrente):
             elif 1 <= scelta <= len(contatti):
                 contatto_selezionato = contatti[scelta - 1]
                 print(f"Iniziando una chat con {contatto_selezionato}...")
-                # Puoi aggiungere qui il codice per gestire la chat
-
-                break
+                chat(utente_corrente, contatto_selezionato)
+                return
             else:
                 print("Selezione non valida. Riprova.")
         except ValueError:
             print("Inserisci un numero valido.")
 
-def chat():
+def chat(utente_corrente, contatto):
     while True:
-        messaggio = print(input("Scrivi: "))
-        return
+        messaggio = input(f"{utente_corrente} (scrivi 'esc' per uscire): ")
+        if messaggio.lower() == "esc":
+            break
+        else:
+            invia_mess(utente_corrente, contatto, messaggio)
+            leggi_mess(utente_corrente, contatto)
 
+def invia_mess(utente_corrente, contatto, messaggio):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    messaggio_data = {
+        "from": utente_corrente,
+        "to": contatto,
+        "message": messaggio,
+        "timestamp": timestamp
+    }
+    r.rpush(f"chat:{utente_corrente}:{contatto}", json.dumps(messaggio_data))
+    r.rpush(f"chat:{contatto}:{utente_corrente}", json.dumps(messaggio_data))
+    print("Messaggio inviato!")
 
-
-
-def leggi_mess():
-    print('da fare')
+def leggi_mess(utente_corrente, contatto):
+    chiave_chat = f"chat:{utente_corrente}:{contatto}"
+    messaggi = r.lrange(chiave_chat, 0, -1)
+    if not messaggi:
+        print("Nessun messaggio nella chat.")
+    else:
+        print("\n*** Messaggi nella chat con", contatto, "***")
+        for messaggio in messaggi:
+            data = json.loads(messaggio)
+            direzione = ">" if data["from"] == utente_corrente else "<"
+            print(f"{data['timestamp']} - {data['from']} {direzione} {data['message']}")
