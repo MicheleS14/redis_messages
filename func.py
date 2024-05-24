@@ -6,7 +6,7 @@ import json
 r = redis.Redis(host='redis-16036.c250.eu-central-1-1.ec2.redns.redis-cloud.com', port=16036, db=0, username='default', password='69Fa488VqsGKuseTkFy5uwVlupgDBF2V', decode_responses=True)
 
 def registrazione():
-    username = input("Inserisci il nome utente: ")
+    username = input("Inserisci il nome utente: ").lower()
     password = input("Inserisci la password: ")
     
     # Controllo se l'utente esiste già
@@ -20,7 +20,7 @@ def registrazione():
 
 # Funzione per effettuare il login
 def login():
-    username = input("Inserisci il nome utente: ")
+    username = input("Inserisci il nome utente: ").lower()
     password = input("Inserisci la password: ")
     
     # Controllo le credenziali dell'utente
@@ -41,7 +41,7 @@ def aggiungi_utente(user, utente_corrente):
         print(f"L'utente {user} è già nei tuoi contatti.")
 
 def ricerca_utenti(utente_corrente):
-    query = input("Inserisci il nome utente (anche parziale): ")
+    query = input("Inserisci il nome utente (anche parziale): ").lower()
     
     # Cerco gli utenti che corrispondono alla query
     users = r.keys(query + "*")
