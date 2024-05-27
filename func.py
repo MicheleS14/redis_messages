@@ -1,6 +1,5 @@
 import redis
 import datetime
-import json
 
 # Connessione a Redis
 r = redis.Redis(host='redis-16036.c250.eu-central-1-1.ec2.redns.redis-cloud.com', port=16036, db=0, username='default', password='69Fa488VqsGKuseTkFy5uwVlupgDBF2V', decode_responses=True)
@@ -134,14 +133,9 @@ def chat(utente_corrente, contatto):
 
 def invia_mess(utente_corrente, contatto, messaggio):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    messaggio_data = {
-        "from": utente_corrente,
-        "to": contatto,
-        "message": messaggio,
-        "timestamp": timestamp
-    }
-    r.rpush(f"chat:{utente_corrente}:{contatto}", json.dumps(messaggio_data))
-    r.rpush(f"chat:{contatto}:{utente_corrente}", json.dumps(messaggio_data))
+    messaggio_data = f"{timestamp}|{utente_corrente}|{messaggio}"
+    r.rpush(f"chat:{utente_corrente}:{contatto}", messaggio_data)
+    r.rpush(f"chat:{contatto}:{utente_corrente}", messaggio_data)
     print("Messaggio inviato!")
 
 def leggi_mess(utente_corrente, contatto):
@@ -152,6 +146,6 @@ def leggi_mess(utente_corrente, contatto):
     else:
         print("\n*** Messaggi nella chat con", contatto, "***")
         for messaggio in messaggi:
-            data = json.loads(messaggio)
-            direzione = ">" if data["from"] == utente_corrente else "<"
-            print(f"{data['timestamp']} - {data['from']} {direzione} {data['message']}")
+            timestamp, sender, text = messaggio.split("|")
+            direzione = ">" if sender == utente_corrente else "<"
+            print(f"{timestamp} - {sender} {direzione} {text}")

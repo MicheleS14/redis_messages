@@ -1,4 +1,5 @@
 import func
+import redis
 
 if __name__ == '__main__':
     utente_corrente = None
