@@ -124,13 +124,13 @@ def seleziona_chat(utente_corrente):
 
 def chat(utente_corrente, contatto):
     while True:
+        leggi_mess(utente_corrente, contatto)
         messaggio = input(f"{utente_corrente} (scrivi 'esc' per uscire): ")
         if messaggio.lower() == "esc":
             break
         else:
             invia_mess(utente_corrente, contatto, messaggio)
-            leggi_mess(utente_corrente, contatto)
-
+           
 def invia_mess(utente_corrente, contatto, messaggio):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     messaggio_data = f"{timestamp}|{utente_corrente}|{messaggio}"
