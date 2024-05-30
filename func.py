@@ -126,10 +126,14 @@ def chat(utente_corrente, contatto):
     while True:
         leggi_mess(utente_corrente, contatto)
         messaggio = input(f"{utente_corrente} (scrivi 'esc' per uscire): ")
-        if messaggio.lower() == "esc":
-            break
+        if r.hget(contatto, "dnd")=="False":
+            if messaggio.lower() == "esc":
+                break
+            else:
+                invia_mess(utente_corrente, contatto, messaggio)
         else:
-            invia_mess(utente_corrente, contatto, messaggio)
+            print("L'utente ha la modalita Non Disturbare Attiva")
+            return
            
 def invia_mess(utente_corrente, contatto, messaggio):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -149,3 +153,5 @@ def leggi_mess(utente_corrente, contatto):
             timestamp, sender, text = messaggio.split("|")
             direzione = ">" if sender == utente_corrente else "<"
             print(f"{timestamp} - {sender} {direzione} {text}")
+
+
