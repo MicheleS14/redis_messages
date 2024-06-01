@@ -140,6 +140,7 @@ def invia_mess(utente_corrente, contatto, messaggio):
     messaggio_data = f"{timestamp}|{utente_corrente}|{messaggio}"
     r.rpush(f"chat:{utente_corrente}:{contatto}", messaggio_data)
     r.rpush(f"chat:{contatto}:{utente_corrente}", messaggio_data)
+    r.hset(f"Notifiche{contatto}",f"Nuovo_Messaggio_da_{utente_corrente}",f"{timestamp} - {utente_corrente} < {messaggio}")
     print("Messaggio inviato!")
 
 def leggi_mess(utente_corrente, contatto):
@@ -154,4 +155,27 @@ def leggi_mess(utente_corrente, contatto):
             direzione = ">" if sender == utente_corrente else "<"
             print(f"{timestamp} - {sender} {direzione} {text}")
 
-
+def Notifica(utente_corrente):
+    if r.hlen(f"Notifiche{utente_corrente}") != 0:
+       chiavi = r.hkeys(f"Notifiche{utente_corrente}")
+       i = 0
+       print("Hai dei Nuovi Messaggi: ")
+       for chiave in chiavi:
+           chiave = chiavi[i]
+           messaggio = r.hget(f"Notifiche{utente_corrente}",chiave)
+           print(f"{chiave} - {messaggio}")
+           i = i+1
+           
+       esci = input(str("Scrivi 'OK' per tornare indietro: "))
+       if esci.upper() == "OK":
+           i = 0
+           for chiave in chiavi:
+               chiave = chiavi[i]
+               r.hdel(f"Notifiche{utente_corrente}",chiave)
+               i = i+1
+           return
+    else:
+        print("Non hai messaggi nuovi")
+        return
+        
+        

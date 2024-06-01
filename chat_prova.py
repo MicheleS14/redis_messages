@@ -4,7 +4,6 @@ import redis
 
 if __name__ == '__main__':
     utente_corrente = None
-    
     while True:
         print("\n*** Benvenuto nella chat ***")
         print("1. Login")
@@ -31,6 +30,7 @@ if __name__ == '__main__':
             print("1. Ricerca e aggiungi contatti")
             print("2. Imposta modalità Do Not Disturb")
             print("3. Chatta")
+            print("4. Notifiche")
             print("0. Esci")
 
             scelta = input("Scelta: ")
@@ -41,6 +41,8 @@ if __name__ == '__main__':
                 func.impostazione_dnd(utente_corrente)
             elif scelta == "3":
                 func.seleziona_chat(utente_corrente)
+            elif scelta == "4":
+               func.Notifica(utente_corrente)
             elif scelta == "0":
                 print("Grazie per aver utilizzato la chat. Arrivederci!")
                 break
