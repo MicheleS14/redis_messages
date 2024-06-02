@@ -188,19 +188,25 @@ def Notifica(utente_corrente):
         return
 
 def checkdata(utente_corrente):
-    chiave_chat = f"chatprivata:{utente_corrente}"      
-    messaggi = r.lrange(chiave_chat, 0, -1)
-    if not messaggi:
-        return        
-    else:
-    # Recupera l'ultimo timestamp e verifica se è passato più di un minuto
-        last_message = messaggi[-1]
-        last_timestamp_str = last_message.split("|")[0]
-        last_timestamp = datetime.datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S")
-        current_time = datetime.datetime.now()
+    contatti = get_contatti(utente_corrente)
+    
+    for contatto in contatti:
+        chiave_chat = f"chatprivata:{utente_corrente}:{contatto}"      
+        messaggi = r.lrange(chiave_chat, 0, -1)
+        
+        if not messaggi:
+            continue
+        else:
+            # Recupera l'ultimo timestamp e verifica se è passato più di un minuto
+            last_message = messaggi[-1]
+            last_timestamp_str = last_message.split("|")[0]
+            last_timestamp = datetime.datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S")
+            current_time = datetime.datetime.now()
 
-        if (current_time - last_timestamp).total_seconds() > 60:
-            r.delete(chiave_chat)    
+            if (current_time - last_timestamp).total_seconds() > 60:
+                r.delete(chiave_chat)
+                return True  # Chat eliminata
+    return False  # Nessuna chat eliminata
       
 def autodistruzione(utente_corrente, contatto):
     while True:
@@ -213,14 +219,17 @@ def autodistruzione(utente_corrente, contatto):
         else:
             print("\n*** Messaggi nella chat con", contatto, "***")
             for messaggio in messaggi:
-                timestamp, sender, text = messaggio.split("|")
+                timestamp, sender, text = messaggio.decode('utf-8').split("|")
                 direzione = ">" if sender == utente_corrente else "<"
                 print(f"{timestamp} - {sender} {direzione} {text}")
 
-            checkdata(utente_corrente)
+            if checkdata(utente_corrente):
+                print("La chat è stata chiusa per inattività.")
+                return  # Torna al menu
+        
         ## Invio messaggi
         messaggio = input(f"{utente_corrente} (scrivi 'esc' per uscire): ")
-        if r.hget(contatto, "dnd") == "False":
+        if r.hget(contatto, "dnd") == b"False":
             if messaggio.lower() == "esc":
                 break
             else:
@@ -231,4 +240,4 @@ def autodistruzione(utente_corrente, contatto):
                 print("Messaggio inviato!")
         else:
             print("L'utente ha la modalità Non Disturbare attiva")
-            return
+            return  # Torna al menu
