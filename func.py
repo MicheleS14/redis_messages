@@ -113,10 +113,19 @@ def seleziona_chat(utente_corrente):
             if scelta == 0:
                 return
             elif 1 <= scelta <= len(contatti):
-                contatto_selezionato = contatti[scelta - 1]
-                print(f"Iniziando una chat con {contatto_selezionato}...")
-                chat(utente_corrente, contatto_selezionato)
-                return
+                print("Seleziona il tipo di chat")
+                checkdata(utente_corrente)
+                modalita = int(input("1. Per la chat normale | 2. Per la chat privata: "))
+                if(modalita == 1):
+                    contatto_selezionato = contatti[scelta - 1]
+                    print(f"Iniziando una chat con {contatto_selezionato}...")
+                    chat(utente_corrente, contatto_selezionato)
+                    return
+                elif(modalita == 2):
+                    contatto_selezionato = contatti[scelta - 1]
+                    print(f"Iniziando una chat privata con {contatto_selezionato}...")
+                    autodistruzione(utente_corrente, contatto_selezionato)
+                    return
             else:
                 print("Selezione non valida. Riprova.")
         except ValueError:
@@ -177,5 +186,49 @@ def Notifica(utente_corrente):
     else:
         print("Non hai messaggi nuovi")
         return
+
+def checkdata(utente_corrente):
+    chiave_chat = f"chatprivata:{utente_corrente}"      
+    messaggi = r.lrange(chiave_chat, 0, -1)
+    if not messaggi:
+        return        
+    else:
+    # Recupera l'ultimo timestamp e verifica se è passato più di un minuto
+        last_message = messaggi[-1]
+        last_timestamp_str = last_message.split("|")[0]
+        last_timestamp = datetime.datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S")
+        current_time = datetime.datetime.now()
+
+        if (current_time - last_timestamp).total_seconds() > 60:
+            r.delete(chiave_chat)    
+      
+def autodistruzione(utente_corrente, contatto):
+    while True:
+        ## Lettura messaggi
+        chiave_chat = f"chatprivata:{utente_corrente}:{contatto}"  
+        messaggi = r.lrange(chiave_chat, 0, -1)
         
-        
+        if not messaggi:
+            print("Invia il primo messaggio per avviare il countdown")
+        else:
+            print("\n*** Messaggi nella chat con", contatto, "***")
+            for messaggio in messaggi:
+                timestamp, sender, text = messaggio.split("|")
+                direzione = ">" if sender == utente_corrente else "<"
+                print(f"{timestamp} - {sender} {direzione} {text}")
+
+            checkdata(utente_corrente)
+        ## Invio messaggi
+        messaggio = input(f"{utente_corrente} (scrivi 'esc' per uscire): ")
+        if r.hget(contatto, "dnd") == "False":
+            if messaggio.lower() == "esc":
+                break
+            else:
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                messaggio_data = f"{timestamp}|{utente_corrente}|{messaggio}"
+                r.rpush(f"chatprivata:{utente_corrente}:{contatto}", messaggio_data)
+                r.rpush(f"chatprivata:{contatto}:{utente_corrente}", messaggio_data)
+                print("Messaggio inviato!")
+        else:
+            print("L'utente ha la modalità Non Disturbare attiva")
+            return
