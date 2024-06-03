@@ -219,7 +219,7 @@ def autodistruzione(utente_corrente, contatto):
         else:
             print("\n*** Messaggi nella chat con", contatto, "***")
             for messaggio in messaggi:
-                timestamp, sender, text = messaggio.decode('utf-8').split("|")
+                timestamp, sender, text = messaggio.split("|")
                 direzione = ">" if sender == utente_corrente else "<"
                 print(f"{timestamp} - {sender} {direzione} {text}")
 
@@ -229,15 +229,11 @@ def autodistruzione(utente_corrente, contatto):
         
         ## Invio messaggi
         messaggio = input(f"{utente_corrente} (scrivi 'esc' per uscire): ")
-        if r.hget(contatto, "dnd") == b"False":
-            if messaggio.lower() == "esc":
-                break
-            else:
-                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                messaggio_data = f"{timestamp}|{utente_corrente}|{messaggio}"
-                r.rpush(f"chatprivata:{utente_corrente}:{contatto}", messaggio_data)
-                r.rpush(f"chatprivata:{contatto}:{utente_corrente}", messaggio_data)
-                print("Messaggio inviato!")
+        if messaggio.lower() == "esc":
+            break
         else:
-            print("L'utente ha la modalità Non Disturbare attiva")
-            return  # Torna al menu
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            messaggio_data = f"{timestamp}|{utente_corrente}|{messaggio}"
+            r.rpush(f"chatprivata:{utente_corrente}:{contatto}", messaggio_data)
+            r.rpush(f"chatprivata:{contatto}:{utente_corrente}", messaggio_data)
+            print("Messaggio inviato!")
